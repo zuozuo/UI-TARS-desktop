@@ -1,0 +1,58 @@
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  # push:
+  #   branches:
+  #     - 'main'
+
+name: CI Test, Typecheck, Build
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-test
+  cancel-in-progress: true
+env:
+  CI: true
+  NODE_OPTIONS: --max-old-space-size=8192
+  HUSKY: 0
+
+jobs:
+  test:
+    name: Test & Typecheck
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run typecheck
+        run: pnpm run typecheck
+      - name: Run test
+        run: pnpm run test
+
+  build:
+    name: Build
+    strategy:
+      matrix:
+        os: [macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install Python setuptools
+        run: brew install python-setuptools
+      - name: Install appdmg
+        run: npm install -g appdmg
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run build
+        run: pnpm run build

@@ -1,0 +1,85 @@
+name: Release app
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+
+env:
+  CI: true
+  NODE_OPTIONS: --max-old-space-size=8192
+  HUSKY: 0
+
+jobs:
+  publish_on_mac_arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show operating system info
+        run: |
+          echo "Operating System:"
+          uname -a
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install Python setuptools
+        run: brew install python-setuptools
+      - name: Install appdmg
+        run: npm install -g appdmg
+      - name: install dependencies
+        run: pnpm install
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm run publish:mac-arm64
+
+  publish_on_mac_x64:
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show operating system info
+        run: |
+          echo "Operating System:"
+          uname -a
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install Python setuptools
+        run: brew install python-setuptools
+      - name: Install appdmg
+        run: npm install -g appdmg
+      - name: install dependencies
+        run: pnpm install
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm run publish:mac-x64
+
+  publish_on_win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show operating system info
+        run: |
+          echo "Operating System:"
+          cmd /c ver
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: install dependencies
+        run: pnpm install
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm run publish:win32

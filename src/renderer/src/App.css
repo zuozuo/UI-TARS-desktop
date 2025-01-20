@@ -1,0 +1,4 @@
+:root {
+  --text-quaternary: #cdcdcd;
+  --text-primary: var(--chakra-colors-gray-600);
+}
