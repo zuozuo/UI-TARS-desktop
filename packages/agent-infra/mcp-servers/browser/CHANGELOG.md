@@ -1,5 +1,35 @@
 # @agent-infra/mcp-server-browser
 
+## 1.1.5
+
+### Patch Changes
+
+- feat: add page.keyboard.press
+- Updated dependencies
+  - mcp-http-server@1.1.5
+
+## 1.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  - mcp-http-server@1.1.4
+
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies
+  - mcp-http-server@1.1.3
+
+## 1.1.2
+
+### Patch Changes
+
+- chore: performance and browser_get_html desc
+- Updated dependencies
+  - mcp-http-server@1.1.2
+
 ## 1.1.1
 
 ### Patch Changes
