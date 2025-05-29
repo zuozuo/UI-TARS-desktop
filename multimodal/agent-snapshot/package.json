@@ -1,7 +1,7 @@
 {
-  "name": "@multimodal/agent-interface",
+  "name": "@multimodal/agent-snapshot",
   "version": "0.1.1-beta.4",
-  "description": "Standard protocol, types, event stream and other specifications for `@multimodal/agent`",
+  "description": "A snapshot-based agent test framework for `@multimodal/agent` based Agents",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -22,11 +22,12 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "openai": "4.87.3",
-    "zod": "3.24.2",
-    "@types/json-schema": "^7.0.15",
-    "@agent-infra/logger": "workspace:*",
-    "@multimodal/llm-client": "workspace:*"
+    "@multimodal/agent": "workspace:*",
+    "@multimodal/agent-interface": "workspace:*",
+    "@agent-infra/logger": "0.0.2-beta.2",
+    "fast-json-stable-stringify": "^2.1.0",
+    "snapshot-diff": "0.10.0",
+    "chalk": "^4.1.2"
   },
   "devDependencies": {
     "@rslib/core": "0.5.4",

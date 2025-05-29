@@ -1,7 +1,7 @@
 {
-  "name": "@multimodal/agent-snapshot",
+  "name": "@multimodal/deep-research-agent",
   "version": "0.1.1-beta.4",
-  "description": "A snapshot-based agent test framework for `@multimodal/agent` based Agents",
+  "description": "A Deep Research Agent",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -15,6 +15,9 @@
   "files": [
     "dist"
   ],
+  "bin": {
+    "codeact": "dist/cli/cli.js"
+  },
   "scripts": {
     "dev": "rslib build --watch",
     "build": "rslib build",
@@ -23,17 +26,15 @@
   },
   "dependencies": {
     "@multimodal/agent": "workspace:*",
-    "@multimodal/agent-interface": "workspace:*",
-    "@agent-infra/logger": "workspace:*",
-    "fast-json-stable-stringify": "^2.1.0",
-    "snapshot-diff": "0.10.0",
-    "chalk": "^4.1.2"
+    "@modelcontextprotocol/sdk": "^1.10.2",
+    "@agent-infra/logger": "0.0.2-beta.2",
+    "@agent-infra/shared": "0.0.1",
+    "@agent-infra/browser": "0.1.1-beta.1",
+    "@agent-infra/browser-search": "0.0.3-beta.2"
   },
   "devDependencies": {
     "@rslib/core": "0.5.4",
     "@types/node": "^20.10.4",
-    "tsx": "^4.19.2",
-    "typescript": "^5.5.3",
-    "vitest": "^3.0.8"
+    "typescript": "^5.5.3"
   }
 }
