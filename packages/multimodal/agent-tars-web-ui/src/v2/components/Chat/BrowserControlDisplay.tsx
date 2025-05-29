@@ -122,7 +122,7 @@ export const BrowserControlDisplay: React.FC<BrowserControlDisplayProps> = ({ mo
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-xl border border-gray-100/40 dark:border-gray-700/20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden shadow-sm mb-4"
+      className="rounded-xl border border-[#E5E6EC] dark:border-gray-700/20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden mb-4"
     >
       <motion.div
         className="p-3 flex items-center justify-between cursor-pointer"
@@ -172,7 +172,7 @@ export const BrowserControlDisplay: React.FC<BrowserControlDisplayProps> = ({ mo
         <div className="px-4 pb-3 space-y-3">
           {Object.entries(groupedTools).map(([category, categoryTools]) => (
             <div key={category}>
-              <div className="flex items-center mb-1.5 text-xs font-medium text-gray-600 dark:text-gray-300">
+              <div className="flex items-center my-1.5 text-xs font-medium text-gray-600 dark:text-gray-300">
                 {getCategoryIcon(category)}
                 <span className="ml-1.5 capitalize">{category}</span>
                 <span className="ml-1 text-gray-400 dark:text-gray-500">

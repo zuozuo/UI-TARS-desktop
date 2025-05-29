@@ -146,7 +146,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       return (
         <h3
           id={id}
-          className="group text-2xl font-semibold mt-8 mb-3 text-gray-700 dark:text-gray-300 scroll-mt-20 flex items-center"
+          className="group text-2xl font-semibold mt-8 mb-3 text-gray-800 dark:text-gray-200 scroll-mt-20 flex items-center"
           {...props}
         >
           {children}
@@ -172,7 +172,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       );
     },
     p: ({ node, ...props }) => (
-      <p className="my-0 text-gray-700 dark:text-gray-300 leading-relaxed" {...props} />
+      <p className="my-0 text-gray-800 dark:text-gray-200 leading-relaxed" {...props} />
     ),
     a: ({ node, href, ...props }) => {
       // Handle three types of links:
@@ -222,10 +222,10 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       );
     },
     ul: ({ node, ...props }) => (
-      <ul className="my-4 list-disc pl-6 text-gray-700 dark:text-gray-300" {...props} />
+      <ul className="my-4 list-disc pl-6 text-gray-800 dark:text-gray-200" {...props} />
     ),
     ol: ({ node, ...props }) => (
-      <ol className="my-4 list-decimal pl-6 text-gray-700 dark:text-gray-300" {...props} />
+      <ol className="my-4 list-decimal pl-6 text-gray-800 dark:text-gray-200" {...props} />
     ),
     li: ({ node, ...props }) => <li className="my-1" {...props} />,
     blockquote: ({ node, ...props }) => (
@@ -236,7 +236,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     ),
     code: ({ node, className, children, ...props }) => {
       return (
-        <CodeBlock className={className} {...props}>
+        <CodeBlock className={`${className} dark:text-gray-200 dark:bg-gray-800`} {...props}>
           {children}
         </CodeBlock>
       );
@@ -251,7 +251,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     tr: ({ node, ...props }) => <tr className="hover:bg-white/5 transition-colors" {...props} />,
     th: ({ node, ...props }) => (
       <th
-        className="px-4 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider border-b border-white/20"
+        className="px-4 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-200 uppercase tracking-wider border-b border-white/20"
         {...props}
       />
     ),
@@ -275,7 +275,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
   try {
     return (
-      <div className={themeClass}>
+      <div className={`${themeClass} markdown-content`}>
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkAlert]}
           rehypePlugins={[rehypeRaw, [rehypeHighlight, { detect: true, ignoreMissing: true }]]}
