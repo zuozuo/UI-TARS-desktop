@@ -1,5 +1,11 @@
 # @agent-infra/mcp-server-browser
 
+## 1.1.6-beta.3
+
+### Patch Changes
+
+- feat: support vision mode
+
 ## 1.1.6-beta.2
 
 ### Patch Changes
@@ -9,6 +15,10 @@
 ## 1.1.6-beta.1
 
 ## 1.1.6-beta.0
+
+### Patch Changes
+
+- feat: add fullPage
 
 ## 1.1.5
 

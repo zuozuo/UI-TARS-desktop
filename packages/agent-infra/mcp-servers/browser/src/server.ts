@@ -43,6 +43,8 @@ import merge from 'lodash.merge';
 import { parseProxyUrl } from './utils.js';
 import { ElementHandle, KeyInput } from 'puppeteer-core';
 import { keyInputValues } from './constants.js';
+import { getVisionTools, visionToolsMap } from './tools/vision.js';
+import { ToolContext } from './typings.js';
 
 const consoleLogs: string[] = [];
 
@@ -72,6 +74,11 @@ interface GlobalConfig {
    * @defaultValue true
    */
   enableAdBlocker?: boolean;
+  /**
+   * Whether to add vision tools
+   * @defaultValue false
+   */
+  vision?: boolean;
 }
 
 // Global state
@@ -81,6 +88,7 @@ let globalConfig: GlobalConfig = {
   },
   contextOptions: {},
   enableAdBlocker: true,
+  vision: false,
 };
 
 let globalBrowser: LocalBrowser['browser'] | undefined;
@@ -273,6 +281,10 @@ export const toolsMap = {
           .number()
           .optional()
           .describe('Height in pixels (default: viewport height)'),
+        fullPage: z
+          .boolean()
+          .optional()
+          .describe('Full page screenshot (default: false)'),
         highlight: z
           .boolean()
           .optional()
@@ -285,7 +297,8 @@ export const toolsMap = {
   },
   browser_click: {
     name: 'browser_click',
-    description: 'Click an element on the page',
+    description:
+      'Click an element on the page, before using the tool, use `browser_get_clickable_elements` to get the index of the element, but not call `browser_get_clickable_elements` multiple times',
     inputSchema: z.object({
       // selector: z
       //   .string()
@@ -432,9 +445,11 @@ export const toolsMap = {
   },
 };
 
-type ToolNames = keyof typeof toolsMap;
+type ToolNames = keyof typeof toolsMap | keyof typeof visionToolsMap;
 type ToolInputMap = {
-  [K in ToolNames]: (typeof toolsMap)[K] extends { inputSchema: infer S }
+  [K in ToolNames]: (typeof toolsMap & typeof visionToolsMap)[K] extends {
+    inputSchema: infer S;
+  }
     ? S extends z.ZodType<any, any, any>
       ? z.infer<S>
       : unknown
@@ -498,9 +513,13 @@ const handleToolCall = async ({
     };
   }
 
+  const ctx: ToolContext = { page, browser, logger };
+
   const handlers: {
     [K in ToolNames]: (args: ToolInputMap[K]) => Promise<CallToolResult>;
   } = {
+    // vision tools
+    ...getVisionTools(ctx),
     browser_go_back: async (args) => {
       try {
         await Promise.all([waitForPageAndFramesLoad(page), page.goBack()]);
@@ -658,7 +677,10 @@ const handleToolCall = async ({
       // if screenshot is still undefined, take a screenshot of the whole page
       screenshot =
         screenshot ||
-        (await page.screenshot({ encoding: 'base64', fullPage: false }));
+        (await page.screenshot({
+          encoding: 'base64',
+          fullPage: args.fullPage ?? false,
+        }));
 
       // if screenshot is still undefined, return an error
       if (!screenshot) {
@@ -702,6 +724,7 @@ const handleToolCall = async ({
 
       try {
         const { clickableElements } = (await buildDomTree(page)) || {};
+        await removeHighlights(page);
         if (clickableElements) {
           return {
             content: [
@@ -1295,8 +1318,13 @@ function createServer(config: GlobalConfig = {}): McpServer {
     version: process.env.VERSION || '0.0.1',
   });
 
+  const mergedToolsMap = {
+    ...toolsMap,
+    ...(config.vision ? visionToolsMap : {}),
+  };
+
   // === Tools ===
-  Object.entries(toolsMap).forEach(([name, tool]) => {
+  Object.entries(mergedToolsMap).forEach(([name, tool]) => {
     // @ts-ignore
     if (tool?.inputSchema) {
       server.tool(

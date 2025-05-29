@@ -94,10 +94,10 @@ program
     '--viewport-size <size>',
     'specify browser viewport size in pixels, for example "1280, 720"',
   )
-  // .option(
-  //   '--vision',
-  //   'Run server that uses screenshots (Aria snapshots are used by default)',
-  // )
+  .option(
+    '--vision',
+    'Run server that uses screenshots (Aria snapshots are used by default)',
+  )
   .action(async (options) => {
     try {
       console.log('[mcp-server-browser] options', options);
@@ -110,6 +110,7 @@ program
               cdpEndpoint: options.cdpEndpoint,
             },
           }),
+          vision: options.vision,
           launchOptions: {
             headless: options.headless,
             executablePath: options.executablePath,
