@@ -13,7 +13,7 @@ export default defineConfig({
     writeToDisk: true,
   },
   output: {
-    cleanDistPath: true,
+    cleanDistPath: false,
     distPath: {
       root: resolve(__dirname, '../agent-tars-cli/static'),
     },

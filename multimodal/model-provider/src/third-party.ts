@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { z } from 'zod';
+import { z, ZodType } from 'zod';
 import { OpenAI, AzureOpenAI } from 'openai';
 import type { JSONSchema7 } from 'json-schema';
 import type {
@@ -19,7 +19,7 @@ import type {
   ChatCompletionMessageToolCall,
 } from 'openai/resources';
 
-export { z };
+export { z, ZodType };
 export type { OpenAI, AzureOpenAI, JSONSchema7 };
 export type {
   ChatCompletion,

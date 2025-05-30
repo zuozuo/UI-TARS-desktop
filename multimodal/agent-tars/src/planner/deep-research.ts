@@ -1,11 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/*
+ * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 import {
   ConsoleLogger,
   EventStream,
   EventType,
   ChatCompletionContentPart,
   ResolvedModel,
+  OpenAI,
 } from '@multimodal/mcp-agent';
-import { OpenAI } from 'openai';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 

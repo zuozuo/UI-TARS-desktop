@@ -4,88 +4,42 @@
  */
 
 import {
-  AgentOptions,
-  ModelDefaultSelection,
   ModelProvider,
   ModelProviderName,
+  ModelDefaultSelection,
+  ProviderOptions,
+  ResolvedModel,
   ActualModelProviderName,
-} from '@multimodal/agent-interface';
-import { getLogger } from './logger';
-
-const logger = getLogger('ModelResolver');
+} from './types';
+import { MODEL_PROVIDER_CONFIGS } from './constants';
 
 /**
- * Model provider defaults configuration
- */
-interface ModelProviderDefaultConfig {
-  name: ModelProviderName; // Public provider name
-  actual: ActualModelProviderName; // Internal implementation name
-  baseURL?: string;
-  apiKey?: string;
-}
-
-/**
- * Default configurations for extended model providers
- */
-const MODEL_PROVIDER_DEFAULT_CONFIGS: ModelProviderDefaultConfig[] = [
-  {
-    name: 'ollama',
-    actual: 'openai',
-    baseURL: 'http://127.0.0.1:11434/v1',
-    apiKey: 'ollama',
-  },
-  {
-    name: 'lm-studio',
-    actual: 'openai',
-    baseURL: 'http://127.0.0.1:1234/v1',
-    apiKey: 'lm-studio',
-  },
-  {
-    name: 'volcengine',
-    actual: 'openai',
-    baseURL: 'https://ark.cn-beijing.volces.com/api/v3',
-  },
-  {
-    name: 'deepseek',
-    actual: 'openai',
-    baseURL: 'https://api.deepseek.com/v1',
-  },
-];
-
-/**
- * Result of model resolution
- */
-export interface ResolvedModel {
-  provider: ModelProviderName;
-  model: string;
-  baseURL?: string;
-  apiKey?: string;
-  actualProvider: ActualModelProviderName;
-}
-
-/**
- * A service class for resolving model configurations
+ * ModelResolver - Resolves model and provider configurations
+ *
+ * This class handles the resolution of model providers and models
+ * based on provided configurations and defaults.
  */
 export class ModelResolver {
-  private agentOptions: AgentOptions;
+  private options: ProviderOptions;
   private defaultSelection: ModelDefaultSelection;
   private providers: ModelProvider[] | undefined;
 
   /**
    * Creates a new ModelResolver
-   * @param agentOptions - The agent options containing model configuration
+   *
+   * @param options - Provider configuration options
    */
-  constructor(agentOptions: AgentOptions) {
-    this.agentOptions = agentOptions;
-    this.providers = agentOptions.model?.providers;
+  constructor(options: ProviderOptions = {}) {
+    this.options = options;
+    this.providers = options.providers;
     this.defaultSelection = this.determineDefaultModelSelection();
   }
 
   /**
-   * Determines the default model selection based on agent configuration
+   * Determines the default model selection based on configuration
    */
   private determineDefaultModelSelection(): ModelDefaultSelection {
-    const { providers, use } = this.agentOptions.model ?? {};
+    const { providers, use } = this.options;
 
     // Use explicit selection if provided
     if (use) {
@@ -112,26 +66,6 @@ export class ModelResolver {
   }
 
   /**
-   * Normalizes a model provider by applying default configurations if needed
-   */
-  private normalizeModelProvider(provider: ModelProvider): ModelProvider {
-    const defaultConfig = MODEL_PROVIDER_DEFAULT_CONFIGS.find(
-      (config) => config.name === provider.name,
-    );
-
-    if (defaultConfig) {
-      return {
-        baseURL: defaultConfig.baseURL,
-        apiKey: defaultConfig.apiKey,
-        ...provider,
-        name: defaultConfig.actual,
-      };
-    }
-
-    return provider;
-  }
-
-  /**
    * Finds a provider in the configured providers list
    */
   private findProvider(providerName: ModelProviderName): ModelProvider | undefined {
@@ -149,14 +83,13 @@ export class ModelResolver {
    * Gets the actual provider name for a model provider
    */
   private getActualProviderName(providerName: ModelProviderName): ActualModelProviderName {
-    const defaultConfig = MODEL_PROVIDER_DEFAULT_CONFIGS.find(
-      (config) => config.name === providerName,
-    );
-    return defaultConfig?.actual || (providerName as ActualModelProviderName);
+    const defaultConfig = MODEL_PROVIDER_CONFIGS.find((config) => config.name === providerName);
+    return (defaultConfig?.actual || providerName) as ActualModelProviderName;
   }
 
   /**
    * Resolves the model configuration based on run options and defaults
+   *
    * @param runModel - Model specified in run options (optional)
    * @param runProvider - Provider specified in run options (optional)
    * @returns Resolved model configuration
@@ -176,8 +109,6 @@ export class ModelResolver {
       apiKey = this.defaultSelection.apiKey;
     }
 
-    logger.debug(`Initial resolution - Provider: ${provider}, Model: ${model}`);
-
     // If provider is still missing but we have a model, try to infer provider from model
     if (!provider && model) {
       const inferredProvider = this.findProviderForModel(model);
@@ -186,11 +117,9 @@ export class ModelResolver {
         provider = inferredProvider.name;
         baseURL = inferredProvider.baseURL;
         apiKey = inferredProvider.apiKey;
-        logger.debug(`Inferred provider: ${provider} for model: ${model}`);
       } else {
         // Default to OpenAI if we can't infer
         provider = 'openai';
-        logger.warn(`Could not infer provider for model: ${model}, defaulting to 'openai'`);
       }
     }
 
@@ -198,15 +127,12 @@ export class ModelResolver {
     if (!provider) {
       provider = 'openai';
       model = model || 'gpt-4o';
-      logger.warn(
-        `Missing model provider configuration. Using default provider "${provider}" and model "${model}"`,
-      );
     }
 
     // If still no model, throw error
     if (!model) {
       throw new Error(
-        `[Config] Missing model configuration. Please specify when calling "Agent.run" or in Agent initialization.`,
+        `[Config] Missing model configuration. Please specify a model when resolving or in the provider options.`,
       );
     }
 
@@ -223,20 +149,12 @@ export class ModelResolver {
     const actualProvider = this.getActualProviderName(provider);
 
     // Apply default provider configuration if available
-    const defaultConfig = MODEL_PROVIDER_DEFAULT_CONFIGS.find((config) => config.name === provider);
+    const defaultConfig = MODEL_PROVIDER_CONFIGS.find((config) => config.name === provider);
 
     if (defaultConfig) {
       baseURL = baseURL || defaultConfig.baseURL;
       apiKey = apiKey || defaultConfig.apiKey;
     }
-
-    logger.info(`Resolved model configuration:
-      - Provider: ${provider}
-      - Model: ${model}
-      - Base URL: ${baseURL || 'default'}
-      - API Key: ${apiKey ? '******' : 'default'}
-      - Actual Provider: ${actualProvider}
-    `);
 
     return {
       provider,
@@ -251,7 +169,7 @@ export class ModelResolver {
    * Gets all configured model providers
    */
   getAllProviders(): ModelProvider[] {
-    return (this.providers || []).map((provider) => this.normalizeModelProvider(provider));
+    return this.providers || [];
   }
 
   /**
