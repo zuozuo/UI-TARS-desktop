@@ -66,7 +66,8 @@ const ChatInput = () => {
 
   // const { startRecording, stopRecording, recordRefs } = useScreenRecord();
 
-  const { currentSessionId, updateSession, createSession } = useSession();
+  const { currentSessionId, chatMessages, updateSession, createSession } =
+    useSession();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const running = status === StatusEnum.RUNNING;
@@ -88,14 +89,17 @@ const ChatInput = () => {
 
     console.log('startRun', instructions, restUserData);
 
+    let history = chatMessages;
+
     if (!currentSessionId) {
       await createSession(instructions, restUserData || {});
       await sleep(100);
+      history = [];
     } else {
       await updateSession(currentSessionId, { name: instructions });
     }
 
-    run(instructions, () => {
+    run(instructions, history, () => {
       setLocalInstructions('');
     });
   };
