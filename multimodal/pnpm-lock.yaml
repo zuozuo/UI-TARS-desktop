@@ -50,6 +50,9 @@ importers:
       jsonrepair:
         specifier: 3.12.0
         version: 3.12.0
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.1
       zod-to-json-schema:
         specifier: 3.24.3
         version: 3.24.3(zod@3.25.36)
@@ -69,6 +72,9 @@ importers:
       '@types/node':
         specifier: 22.15.30
         version: 22.15.30
+      '@types/uuid':
+        specifier: ^9.0.8
+        version: 9.0.8
       '@ui-tars/operator-browser':
         specifier: 1.2.2-beta.2
         version: 1.2.2-beta.2(ws@8.18.2)(zod@3.25.36)
@@ -93,9 +99,6 @@ importers:
       '@multimodal/model-provider':
         specifier: workspace:*
         version: link:../model-provider
-      '@types/json-schema':
-        specifier: ^7.0.15
-        version: 7.0.15
     devDependencies:
       '@rslib/core':
         specifier: 0.9.2
@@ -743,9 +746,15 @@ importers:
 
   model-provider:
     dependencies:
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.12.1
+        version: 1.12.1
       '@multimodal/llm-client':
         specifier: workspace:*
         version: link:../llm-client
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       openai:
         specifier: 4.93.0
         version: 4.93.0(ws@8.18.2)(zod@3.25.36)
