@@ -36,7 +36,7 @@ async function main() {
       id: 'aws_sdk_claude37_sonnet',
       // provider: 'azure-openai',
       // apiKey: process.env.ARK_API_KEY,
-      // id: 'ep-20250512165931-2c2ln', // 'doubao-1.5-thinking-vision-pro',
+      // id: 'ep-20250510145437-5sxhs', // 'doubao-1.5-thinking-vision-pro',
     },
     mcpServers: {
       'streamable-mcp-server': {

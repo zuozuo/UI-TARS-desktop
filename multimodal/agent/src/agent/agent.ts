@@ -39,6 +39,7 @@ import {
 import { getLogger, LogLevel, rootLogger } from '../utils/logger';
 import { AgentExecutionController } from './execution-controller';
 import { getLLMClient } from './llm-client';
+import { getToolCallEngineForProvider } from '../tool-call-engine/engine-selector';
 
 /**
  * An event-stream driven agent framework for building effective multimodal Agents.
@@ -331,6 +332,15 @@ Provide concise and accurate responses.`;
         this.currentResolvedModel = this.modelResolver.resolve(
           normalizedOptions.model,
           normalizedOptions.provider,
+        );
+      }
+
+      // Determine the best tool call engine based on the provider if not explicitly specified
+      if (!this.options.toolCallEngine && !normalizedOptions.toolCallEngine) {
+        const providerEngine = getToolCallEngineForProvider(this.currentResolvedModel.provider);
+        normalizedOptions.toolCallEngine = providerEngine;
+        this.logger.info(
+          `[Agent] Auto-selected tool call engine "${providerEngine}" for provider "${this.currentResolvedModel.provider}"`,
         );
       }
 

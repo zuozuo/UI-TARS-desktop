@@ -61,8 +61,8 @@ export async function createSession(req: Request, res: Response) {
     const session = new AgentSession(
       server,
       sessionId,
-      workingDirectory,
       server.getCustomAgioProvider(),
+      workingDirectory,
     );
 
     server.sessions[sessionId] = session;
@@ -197,6 +197,10 @@ export async function getSessionStatus(req: Request, res: Response) {
     return res.status(400).json({ error: 'Session ID is required' });
   }
 
+  const server = req.app.locals.server as AgentTARSServer;
+  const isolateSessions = server.appConfig.workspace?.isolateSessions ?? false;
+  const workingDirectory = ensureWorkingDirectory(sessionId, server.workspacePath, isolateSessions);
+
   try {
     const server = req.app.locals.server as AgentTARSServer;
     let session = server.sessions[sessionId];
@@ -207,7 +211,12 @@ export async function getSessionStatus(req: Request, res: Response) {
       if (metadata) {
         try {
           // Restore session from storage with custom AGIO provider
-          session = new AgentSession(server, sessionId, server.getCustomAgioProvider());
+          session = new AgentSession(
+            server,
+            sessionId,
+            server.getCustomAgioProvider(),
+            workingDirectory,
+          );
           server.sessions[sessionId] = session;
 
           const { storageUnsubscribe } = await session.initialize();

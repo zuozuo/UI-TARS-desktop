@@ -80,13 +80,13 @@ export class AgentTARS<T extends AgentTARSOptions = AgentTARSOptions> extends MC
         ...(options.browser ?? {}),
       },
       mcpImpl: 'in-memory',
-      // default tool call engine for agent tars.
-      toolCallEngine: 'structured_outputs',
       mcpServers: {},
       maxIterations: 100,
-      maxTokens: 10000, // Set default maxTokens to 10000 for AgentTARS
+      maxTokens: 8192,
       ...options,
     };
+
+    // Error: 400 Invalid max_tokens value, the valid range of max_tokens is [1, 8192]
 
     const { workingDirectory = process.cwd() } = tarsOptions.workspace!;
 

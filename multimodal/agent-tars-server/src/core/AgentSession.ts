@@ -53,8 +53,8 @@ export class AgentSession {
   constructor(
     private server: AgentTARSServer,
     sessionId: string,
-    workingDirectory: string,
     agioProviderImpl?: AgioProviderImpl,
+    workingDirectory?: string,
   ) {
     this.id = sessionId;
     this.eventBridge = new EventStreamBridge();
