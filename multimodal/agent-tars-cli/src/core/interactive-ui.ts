@@ -96,7 +96,7 @@ export async function startInteractiveWebUI(options: UIServerOptions): Promise<h
         margin: { top: 1, bottom: 1 },
 
         borderColor: brandColor2, // Use one of the brand colors for the border
-        borderStyle: 'round',
+        borderStyle: 'classic',
         dimBorder: true,
       }),
     );
