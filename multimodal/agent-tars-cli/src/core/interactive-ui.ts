@@ -12,8 +12,13 @@ import { AgentTARSServer, express } from '@agent-tars/server';
 import boxen from 'boxen';
 import chalk from 'chalk';
 import gradient from 'gradient-string';
-import { logger } from '../utils';
+import { logger, toUserFriendlyPath } from '../utils';
 import { getBootstrapCliOptions } from './state';
+import {
+  isGlobalWorkspaceCreated,
+  getGlobalWorkspacePath,
+  isGlobalWorkspaceEnabled,
+} from '../commands/workspace';
 
 interface UIServerOptions {
   appConfig: AgentTARSAppConfig;
@@ -83,18 +88,32 @@ export async function startInteractiveWebUI(options: UIServerOptions): Promise<h
     // Create a gradient
     const brandGradient = gradient(brandColor1, brandColor2);
 
+    // Get and format workspace directory for display
+    let workspaceLabel = 'Workspace:';
+    const isUsingGlobalWorkspace =
+      appConfig.workspace?.workingDirectory === getGlobalWorkspacePath();
+
+    if (isUsingGlobalWorkspace) {
+      workspaceLabel = 'Global Workspace:';
+    }
+
+    const workspaceDir = appConfig.workspace?.workingDirectory
+      ? toUserFriendlyPath(appConfig.workspace.workingDirectory)
+      : 'Not specified';
+
     const boxContent = [
       brandGradient.multiline('Agent TARS Server is ready!', { interpolation: 'hsv' }),
       '',
-
       `🎉 Agent TARS is available at: ${chalk.underline(brandGradient(serverUrl))}`,
+      '',
+
+      `📁 ${chalk.gray(workspaceLabel)} ${brandGradient(workspaceDir)}`,
     ].join('\n');
 
     console.log(
       boxen(boxContent, {
         padding: 1,
         margin: { top: 1, bottom: 1 },
-
         borderColor: brandColor2, // Use one of the brand colors for the border
         borderStyle: 'classic',
         dimBorder: true,
