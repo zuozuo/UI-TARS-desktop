@@ -2,13 +2,12 @@ import { Command } from 'cac';
 import { AgentTARSCLIArguments, AgentTARSAppConfig } from '@agent-tars/interface';
 import { logger } from '../utils';
 import { loadTarsConfig } from '../config/loader';
+import { buildConfigPaths } from '../config/paths';
 import { ConfigBuilder } from '../config/builder';
 import { getBootstrapCliOptions } from '../core/state';
-import {
-  isGlobalWorkspaceCreated,
-  isGlobalWorkspaceEnabled,
-  getGlobalWorkspacePath,
-} from './workspace';
+import { getGlobalWorkspacePath, shouldUseGlobalWorkspace } from './workspace';
+import path from 'path';
+import * as fs from 'fs';
 
 export type { AgentTARSCLIArguments };
 
@@ -115,15 +114,16 @@ export async function processCommonOptions(options: AgentTARSCLIArguments): Prom
   isDebug: boolean;
 }> {
   const bootstrapCliOptions = getBootstrapCliOptions();
-  const configPaths = options.config ?? [];
-
-  // Set debug mode flag
   const isDebug = !!options.debug;
 
-  // bootstrapCliOptions has lowest priority
-  if (bootstrapCliOptions.remoteConfig) {
-    configPaths.unshift(bootstrapCliOptions.remoteConfig);
-  }
+  // Build configuration paths using the extracted function
+  const configPaths = buildConfigPaths({
+    cliConfigPaths: options.config,
+    bootstrapRemoteConfig: bootstrapCliOptions.remoteConfig,
+    useGlobalWorkspace: shouldUseGlobalWorkspace,
+    globalWorkspacePath: shouldUseGlobalWorkspace ? getGlobalWorkspacePath() : undefined,
+    isDebug,
+  });
 
   // Load user config from file
   const userConfig = await loadTarsConfig(configPaths, isDebug);
@@ -137,11 +137,7 @@ export async function processCommonOptions(options: AgentTARSCLIArguments): Prom
   }
 
   // If global workspace exists, is enabled, and no workspace directory was explicitly specified, use global workspace
-  if (
-    isGlobalWorkspaceCreated() &&
-    isGlobalWorkspaceEnabled() &&
-    (!appConfig.workspace?.workingDirectory || appConfig.workspace.workingDirectory === '.')
-  ) {
+  if (shouldUseGlobalWorkspace && !appConfig.workspace?.workingDirectory) {
     if (!appConfig.workspace) {
       appConfig.workspace = {};
     }
@@ -153,3 +149,5 @@ export async function processCommonOptions(options: AgentTARSCLIArguments): Prom
 
   return { appConfig, isDebug };
 }
+
+// ... 保留其他代码 ...
