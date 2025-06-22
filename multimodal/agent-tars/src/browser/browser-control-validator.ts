@@ -44,8 +44,8 @@ export function validateBrowserControlMode(
       `Vision-based browser control (${requestedModeValue}) is not supported with ${providerName}`,
     );
     logger.info(
-      'Currently, vision-based browser control (mixed/gui-agent-only) is only supported with Doubao VL. ' +
-        'Switching to browser-use-only mode.',
+      'Currently, vision-based browser control ("hyrid" / "visual-grounding") is only supported with Doubao 1.5 VL. ' +
+        'Switching to "dom" mode.',
     );
 
     // Force browser-use-only mode

@@ -54,9 +54,9 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
     return part.text || part.data || {};
   };
 
+  console.log('part', part);
+
   const content = processContent();
-  const [showDetails, setShowDetails] = useState(false);
-  const [animateSuccess, setAnimateSuccess] = useState(false);
   // State to track the current display mode (source or rendered) for markdown content
   const [displayMode, setDisplayMode] = useState<DisplayMode>('source');
 
@@ -74,22 +74,15 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
   // Intelligently detect result type
   const resultInfo = analyzeResult(parsedContent, part.name);
 
-  // Trigger success animation
-  useEffect(() => {
-    if (resultInfo.type === 'success') {
-      setAnimateSuccess(true);
-      const timer = setTimeout(() => setAnimateSuccess(false), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [resultInfo.type]);
-
   // Special handling: if content includes "Navigated to", extract URL and set as navigation operation
   if (typeof content === 'string' && content.includes('Navigated to')) {
-    const url = content.split('\n')[0].replace('Navigated to ', '').trim();
+    const splits = content.split('\n');
+    const url = splits[0].replace('Navigated to ', '').trim();
     resultInfo.operation = 'navigate';
     resultInfo.url = url;
     resultInfo.type = 'success';
     resultInfo.title = 'Navigation Successful';
+    resultInfo.details = splits.slice(1);
   }
 
   // Add special handling for navigation operations
@@ -113,6 +106,9 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
       /!\[.+\]\(.+\)/, // Images
       /^---$/m, // Horizontal rules
       /^\|.+\|$/m, // Tables
+      /^\s*\[\d+\].*$/m, // Numbered references like [1], [2]
+      /^\s*\[FILE\].*$/m, // File annotations
+      /^\s*\[DIR\].*$/m, // Directory annotations
     ];
 
     // If content matches at least two Markdown patterns, or is lengthy with one pattern, consider it Markdown
@@ -130,6 +126,10 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
   const shouldOfferToggle =
     isMarkdownContent && typeof resultInfo.message === 'string' && resultInfo.message.length > 100;
 
+  // Check if this is a very short string that should be displayed prominently
+  const isShortString =
+    typeof resultInfo.message === 'string' && resultInfo.message.length < 80 && !isMarkdownContent;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -137,67 +137,7 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className="w-full"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/50 dark:border-gray-700/30 shadow-sm overflow-hidden w-full transform transition-all duration-300 hover:shadow-md">
-        {/* Status header */}
-        <div
-          className={`py-4 px-5 flex items-center justify-between border-b ${getHeaderClasses(resultInfo.type)}`}
-        >
-          <div className="flex items-center">
-            <div className="mr-3 relative">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={resultInfo.type}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  {getStatusIcon(resultInfo.type, resultInfo.operation)}
-                </motion.div>
-              </AnimatePresence>
-
-              {/* Success animation effect */}
-              {animateSuccess && resultInfo.type === 'success' && (
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0.8 }}
-                  animate={{ scale: 1.5, opacity: 0 }}
-                  transition={{ duration: 1.2, ease: 'easeOut' }}
-                  className="absolute inset-0 rounded-full bg-green-500 dark:bg-green-400 z-0"
-                />
-              )}
-            </div>
-            <div>
-              <motion.span
-                className="font-medium"
-                initial={{ opacity: 0.8 }}
-                animate={{ opacity: 1 }}
-              >
-                {part.name || resultInfo.title}
-              </motion.span>
-              {resultInfo.operation && (
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {getOperationDescription(resultInfo.operation, resultInfo)}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Add URL display (for browser tools) */}
-          {resultInfo.url && (
-            <div className="text-xs flex items-center text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-accent-400 transition-colors group">
-              <FiLink size={12} className="mr-1 group-hover:text-accent-500" />
-              <a
-                href={resultInfo.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="max-w-[200px] truncate hover:underline transition-all"
-              >
-                {resultInfo.url}
-              </a>
-            </div>
-          )}
-        </div>
-
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden w-full transform transition-all duration-300 hover:shadow-md">
         {/* Content area */}
         <div className="p-5 relative">
           {/* Toggle button for markdown content */}
@@ -246,15 +186,41 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
                 transition={{ duration: 0.3, delay: 0.1 }}
                 className="text-gray-700 dark:text-gray-300 mb-4"
               >
-                {typeof resultInfo.message === 'string' && isMarkdownContent ? (
+                {isShortString ? (
+                  <motion.div
+                    initial={{ scale: 0.9 }}
+                    animate={{ scale: 1 }}
+                    transition={{
+                      duration: 0.5,
+                      ease: 'easeOut',
+                    }}
+                    className="text-center"
+                    style={{
+                      fontSize: '30px',
+                      height: '120px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      color: 'transparent',
+                      WebkitTextFillColor: 'transparent',
+                      padding: '3rem',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    {resultInfo.message}
+                  </motion.div>
+                ) : typeof resultInfo.message === 'string' && isMarkdownContent ? (
                   displayMode === 'source' ? (
-                    <pre className="whitespace-pre-wrap text-sm p-4 bg-gray-50 dark:bg-gray-800/50 rounded-md overflow-x-auto border border-gray-200/50 dark:border-gray-700/30 font-mono">
-                      {resultInfo.message}
-                    </pre>
+                    <MarkdownRenderer content={`\`\`\`\`\`md\n${resultInfo.message}\n\`\`\`\`\``} />
                   ) : (
-                    <div className="prose dark:prose-invert prose-sm max-w-none">
-                      <MarkdownRenderer content={resultInfo.message} />
-                    </div>
+                    <MarkdownRenderer
+                      className="prose dark:prose-invert prose-sm max-w-none"
+                      content={resultInfo.message}
+                    />
                   )
                 ) : (
                   resultInfo.message
@@ -302,62 +268,29 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
             </motion.div>
           )}
 
-          {/* Detail toggle button - only shown when additional details exist */}
+          {/* Details area - always shown now */}
           {resultInfo.details && Object.keys(resultInfo.details).length > 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.3 }}
-              className="mt-2 mb-3"
-            >
-              <button
-                onClick={() => setShowDetails(!showDetails)}
-                className="text-xs flex items-center text-gray-500 dark:text-gray-400 hover:text-accent-600 dark:hover:text-accent-400 transition-colors"
-              >
-                <motion.div
-                  animate={{ rotate: showDetails ? 90 : 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <FiArrowRight size={12} className="mr-1.5" />
-                </motion.div>
-                {showDetails ? 'Hide Details' : 'View Details'}
-              </button>
-            </motion.div>
+            <div className="mt-3 pt-3">
+              <div className="grid gap-2">
+                {Object.entries(resultInfo.details).map(([key, value]) => (
+                  <motion.div
+                    key={key}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-start"
+                  >
+                    <div className="text-sm font-light text-gray-500 dark:text-gray-400 w-[auto  ] flex-shrink-0">
+                      {formatKey(key)} &nbsp;
+                    </div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                      {formatValue(value)}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           )}
-
-          {/* Details area - only shown when additional details exist */}
-          <AnimatePresence>
-            {showDetails && resultInfo.details && Object.keys(resultInfo.details).length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/30">
-                  <div className="grid gap-2">
-                    {Object.entries(resultInfo.details).map(([key, value]) => (
-                      <motion.div
-                        key={key}
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex items-start"
-                      >
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 w-24 flex-shrink-0">
-                          {formatKey(key)}:
-                        </div>
-                        <div className="text-sm text-gray-700 dark:text-gray-300">
-                          {formatValue(value)}
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Empty state handling - enhanced version */}
           {!resultInfo.message &&

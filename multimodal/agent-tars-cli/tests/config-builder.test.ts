@@ -123,14 +123,14 @@ describe('ConfigBuilder', () => {
     it('should handle planner configuration', () => {
       const cliArgs: AgentTARSCLIArguments = {
         planner: {
-          enabled: true,
+          enable: true,
         },
       };
 
       const result = ConfigBuilder.buildAppConfig(cliArgs, {});
 
       expect(result.planner).toEqual({
-        enabled: true,
+        enable: true,
       });
     });
 

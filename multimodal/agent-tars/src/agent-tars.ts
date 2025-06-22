@@ -105,13 +105,13 @@ export class AgentTARS<T extends AgentTARSOptions = AgentTARSOptions> extends MC
     const plannerOptions: AgentTARSPlannerOptions | undefined =
       typeof tarsOptions.planner === 'boolean'
         ? tarsOptions.planner
-          ? { enabled: true }
+          ? { enable: true }
           : undefined
         : tarsOptions.planner;
 
     // Generate planner prompt if enabled
     let plannerPrompt = '';
-    if (plannerOptions?.enabled) {
+    if (plannerOptions?.enable) {
       plannerPrompt = `${DEFAULT_PLANNING_PROMPT} \n\n ${plannerOptions.planningPrompt ?? ''}`;
     }
 
@@ -149,7 +149,7 @@ Current Working Directory: ${workingDirectory}
     // Initialize browser manager instead of direct browser instance
     this.browserManager = BrowserManager.getInstance(this.logger);
 
-    if (plannerOptions?.enabled) {
+    if (plannerOptions?.enable) {
       this.planManager = new PlanManager(this.logger, this.eventStream, this, plannerOptions);
     }
 

@@ -86,7 +86,7 @@ export function addCommonOptions(command: Command): Command {
 
       // Planner configuration
       .option('--planner <planner>', 'Planner config')
-      .option('--planner.enabled', 'Enable planning functionality for complex tasks')
+      .option('--planner.enable', 'Enable planning functionality for complex tasks')
 
       // Share configuration
       .option('--share <share>', 'Share config')

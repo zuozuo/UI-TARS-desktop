@@ -97,7 +97,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         <>
           <h1
             id={id}
-            className="group text-4xl font-bold mb-2 pb-2 border-b border-gray-200 bg-gradient-to-r from-purple-700 to-purple-500 bg-clip-text text-transparent scroll-mt-20 flex items-center"
+            className="group text-3xl font-bold mt-6 mb-2 pb-2 border-b border-gray-200 bg-gradient-to-r from-purple-700 to-purple-500 bg-clip-text text-transparent scroll-mt-20 flex items-center"
             {...props}
           >
             {children}
@@ -165,7 +165,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         return (
           <a
             href={href}
-            className="text-purple-600 hover:text-purple-800 transition-colors underline underline-offset-2"
+            className="text-accent-500 hover:text-accent-600 transition-colors underline underline-offset-2"
             onClick={(e) => {
               e.preventDefault();
               // Find target element and scroll into view
@@ -184,7 +184,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         return (
           <Link
             to={href}
-            className="text-purple-600 hover:text-purple-800 transition-colors underline underline-offset-2"
+            className="text-accent-500 hover:text-accent-600 transition-colors underline underline-offset-2"
             {...props}
           />
         );
@@ -194,15 +194,15 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
       return (
         <a
           href={href}
-          className="text-purple-600 hover:text-purple-800 transition-colors underline underline-offset-2"
+          className="text-accent-500 hover:text-accent-600 transition-colors underline underline-offset-2"
           target="_blank"
           rel="noopener noreferrer"
           {...props}
         />
       );
     },
-    ul: ({ node, ...props }) => <ul className="my-4 list-disc pl-6 text-gray-800" {...props} />,
-    ol: ({ node, ...props }) => <ol className="my-4 list-decimal pl-6 text-gray-800" {...props} />,
+    ul: ({ node, ...props }) => <ul className="my-2 list-disc pl-6 text-gray-800" {...props} />,
+    ol: ({ node, ...props }) => <ol className="my-2 list-decimal pl-6 text-gray-800" {...props} />,
     li: ({ node, ...props }) => <li className="my-1" {...props} />,
     blockquote: ({ node, ...props }) => (
       <blockquote

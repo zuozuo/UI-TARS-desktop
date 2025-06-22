@@ -123,7 +123,7 @@ export interface AgentTARSPlannerOptions {
    * Whether to enable the planner functionality
    * @defaultValue false
    */
-  enabled?: boolean;
+  enable?: boolean;
 
   /**
    * Maximum steps allowed in a plan

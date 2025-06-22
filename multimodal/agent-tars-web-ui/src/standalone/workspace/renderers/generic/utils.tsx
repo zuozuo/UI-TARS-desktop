@@ -157,7 +157,7 @@ export function getStatusIcon(type: ResultType, operation?: OperationType): Reac
         );
       case 'click':
         return (
-          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-purple-50 dark:bg-purple-900/20 text-purple-500 dark:text-purple-400">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-purple-50 dark:bg-purple-900/20 text-accent-500 dark:text-accent-400">
             <FiMousePointer size={16} />
           </div>
         );

@@ -23,23 +23,19 @@ import { ActionButton } from './components/ActionButton';
 interface MessageProps {
   message: MessageType;
   shouldDisplayTimestamp?: boolean;
-  isIntermediate?: boolean;
   isInGroup?: boolean;
 }
 
 /**
- * Message Component - Displays a single message in the chat
+ * Message Component - 重构版，移除 isIntermediate 差异
  *
- * Design principles:
- * - Minimalist black & white design with no avatars
- * - Clean, full-width message bubbles with subtle differentiation
- * - Focus on content with minimal visual distractions
- * - Elegant spacing and typography
- * - Progressive disclosure for detailed content
+ * 设计原则:
+ * - 统一的消息样式，不区分中间和最终状态
+ * - 专注于内容，减少视觉干扰
+ * - 优雅的样式和排版
  */
 export const Message: React.FC<MessageProps> = ({
   message,
-  isIntermediate = false,
   isInGroup = false,
   shouldDisplayTimestamp = true,
 }) => {
@@ -195,11 +191,9 @@ export const Message: React.FC<MessageProps> = ({
 
   return (
     <div
-      className={`message-container ${message.role === 'user' ? 'message-container-user' : 'message-container-assistant'} ${isIntermediate ? 'message-container-intermediate' : ''}`}
+      className={`message-container ${message.role === 'user' ? 'message-container-user' : 'message-container-assistant'}`}
     >
-      <div
-        className={`message-bubble ${getMessageBubbleClasses()} ${isIntermediate ? 'message-bubble-intermediate' : ''}`}
-      >
+      <div className={`message-bubble ${getMessageBubbleClasses()}`}>
         {/* Role-based content */}
         {message.role === 'system' ? (
           <SystemMessage content={message.content as string} />
@@ -208,7 +202,7 @@ export const Message: React.FC<MessageProps> = ({
             <div className={getProseClasses()}>{renderContent()}</div>
 
             {/* 使用 ActionButton 替代 ViewEnvironmentButton */}
-            {isFinalAssistantResponse && !isIntermediate && !isInGroup && hasEnvironmentState && (
+            {isFinalAssistantResponse && !isInGroup && hasEnvironmentState && (
               <ActionButton
                 icon={<FiMonitor size={14} />}
                 label="view final environment state"
@@ -220,7 +214,6 @@ export const Message: React.FC<MessageProps> = ({
             {isFinalAnswer &&
               message.title &&
               typeof message.content === 'string' &&
-              !isIntermediate &&
               !isInGroup && (
                 <ReportFileEntry
                   title={message.title || 'Research Report'}
@@ -235,7 +228,6 @@ export const Message: React.FC<MessageProps> = ({
                 toolCalls={message.toolCalls}
                 onToolCallClick={handleToolCallClick}
                 getToolIcon={getToolIcon}
-                isIntermediate={isIntermediate}
                 toolResults={message.toolResults || []} // Pass tool results for status checking
               />
             )}
@@ -254,7 +246,6 @@ export const Message: React.FC<MessageProps> = ({
 
       {/* Timestamp and copy button - only for main messages */}
       {message.role !== 'system' &&
-        !isIntermediate &&
         !isInGroup &&
         shouldDisplayTimestamp &&
         !replayState.isActive && (
