@@ -6,8 +6,6 @@ import { buildConfigPaths } from '../config/paths';
 import { ConfigBuilder } from '../config/builder';
 import { getBootstrapCliOptions } from '../core/state';
 import { getGlobalWorkspacePath, shouldUseGlobalWorkspace } from './workspace';
-import path from 'path';
-import * as fs from 'fs';
 
 export type { AgentTARSCLIArguments };
 
@@ -149,5 +147,3 @@ export async function processCommonOptions(options: AgentTARSCLIArguments): Prom
 
   return { appConfig, isDebug };
 }
-
-// ... 保留其他代码 ...
