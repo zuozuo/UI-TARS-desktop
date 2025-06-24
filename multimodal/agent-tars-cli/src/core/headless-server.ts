@@ -47,12 +47,8 @@ export async function startHeadlessServer(options: HeadlessServerOptions): Promi
       `${chalk.bold('Agent TARS Headless Server')}`,
       '',
       `${chalk.cyan('API URL:')} ${chalk.underline(serverUrl)}`,
-      `${chalk.cyan('Mode:')} ${chalk.yellow('Headless (API only)')}`,
       '',
-      `${chalk.gray('Use the following endpoints:')}`,
-      `${chalk.gray('- GET /api/v1/status - Check server status')}`,
-      `${chalk.gray('- POST /api/v1/run - Run agent with input')}`,
-      `${chalk.gray('For more API details, see documentation')}`,
+      `${chalk.cyan('Mode:')} ${chalk.yellow('Headless (API only)')}`,
     ].join('\n');
 
     console.log(
