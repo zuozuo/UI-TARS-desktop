@@ -158,11 +158,10 @@ export const toolsMap = defineTools({
       script: z.string().describe('JavaScript code to execute'),
     }),
   },
-  // new tools
+  /** @deprecated */
   browser_get_html: {
     name: 'browser_get_html',
-    description:
-      'Get the HTML content of the current page, return long text is not friendly to models with limited token, recommended for use browser_get_markdown instead',
+    description: 'Deprecated, please use browser_get_markdown instead',
   },
   browser_get_clickable_elements: {
     name: 'browser_get_clickable_elements',
@@ -712,11 +711,17 @@ const handleToolCall = async (
         };
       }
     },
+    /** @deprecated */
     browser_get_html: async (args) => {
       try {
-        const html = await page.content();
+        // const html = await page.content();
         return {
-          content: [{ type: 'text', text: html }],
+          content: [
+            {
+              type: 'text',
+              text: 'Deprecated, please use browser_get_markdown instead',
+            },
+          ],
           isError: false,
         };
       } catch (error) {

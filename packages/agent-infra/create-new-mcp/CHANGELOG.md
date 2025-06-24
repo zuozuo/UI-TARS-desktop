@@ -1,5 +1,11 @@
 # create-new-mcp
 
+## 1.1.0
+
+### Minor Changes
+
+- 7bbc77b: feat: upgrade mcp version to ~1.13
+
 ## 1.1.0-beta.0
 
 ### Minor Changes

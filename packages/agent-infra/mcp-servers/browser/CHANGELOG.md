@@ -1,5 +1,16 @@
 # @agent-infra/mcp-server-browser
 
+## 1.2.0
+
+### Minor Changes
+
+- 7bbc77b: feat: upgrade mcp version to ~1.13
+
+### Patch Changes
+
+- Updated dependencies [7bbc77b]
+  - mcp-http-server@1.2.0
+
 ## 1.2.0-beta.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @agent-infra/mcp-client
 
+## 1.2.0
+
+### Minor Changes
+
+- 7bbc77b: feat: upgrade mcp version to ~1.13
+
+### Patch Changes
+
+- Updated dependencies [7bbc77b]
+  - @agent-infra/mcp-shared@1.2.0
+
 ## 1.2.0-beta.0
 
 ### Minor Changes
