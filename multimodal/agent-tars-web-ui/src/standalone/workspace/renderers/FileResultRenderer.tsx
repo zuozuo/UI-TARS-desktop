@@ -182,7 +182,7 @@ export const FileResultRenderer: React.FC<FileResultRendererProps> = ({ part, on
       </div>
 
       {/* Content preview section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/50 dark:border-gray-700/30 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200/50 dark:border-gray-700/30 overflow-hidden px-3">
         {/* Toggle buttons for HTML files */}
         {isHtml && (
           <div className="flex border-b border-gray-100/60 dark:border-gray-700/30">

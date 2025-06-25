@@ -276,25 +276,26 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
 
           {/* Details area - always shown now */}
           {resultInfo.details && Object.keys(resultInfo.details).length > 0 && (
-            <div className="mt-3 pt-3">
-              <div className="grid gap-2">
-                {Object.entries(resultInfo.details).map(([key, value]) => (
-                  <motion.div
-                    key={key}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-start"
-                  >
+            <div className="grid gap-2">
+              {Object.entries(resultInfo.details).map(([key, value]) => (
+                <motion.div
+                  key={key}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-start"
+                >
+                  {/* Only display object key, ignore array index */}
+                  {isNaN(Number(key)) && (
                     <div className="text-sm font-light text-gray-500 dark:text-gray-400 w-[auto  ] flex-shrink-0">
                       {formatKey(key)} &nbsp;
                     </div>
-                    <div className="text-sm text-gray-700 dark:text-gray-300">
-                      {formatValue(value)}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                  )}
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
+                    {formatValue(value)}
+                  </div>
+                </motion.div>
+              ))}
             </div>
           )}
 
