@@ -3,6 +3,7 @@ import { ToolResultContentPart } from '../types';
 import { motion } from 'framer-motion';
 import { FiFileText, FiCode, FiEye, FiDownload, FiCopy, FiCheck } from 'react-icons/fi';
 import { MarkdownRenderer } from '@/sdk/markdown-renderer';
+import { wrapMarkdown } from '@/common/utils/markdown';
 
 interface FileResultRendererProps {
   part: ToolResultContentPart;
@@ -238,7 +239,7 @@ export const FileResultRenderer: React.FC<FileResultRendererProps> = ({ part, on
         ) : (
           <div className=" overflow-auto">
             <div className="prose dark:prose-invert prose-sm max-w-none">
-              <MarkdownRenderer content={`\`\`\`\`\`${getLanguage()}\n${content}\n\`\`\`\`\``} />
+              <MarkdownRenderer content={wrapMarkdown(getLanguage(), content)} />
             </div>
           </div>
         )}
