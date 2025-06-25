@@ -211,6 +211,8 @@ Current Working Directory: ${workingDirectory}
       await this.cleanup();
       throw error;
     }
+
+    await super.initialize();
   }
 
   /**
