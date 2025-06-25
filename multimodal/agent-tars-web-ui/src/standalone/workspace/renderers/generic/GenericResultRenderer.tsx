@@ -170,7 +170,7 @@ export const GenericResultRenderer: React.FC<GenericResultRendererProps> = ({ pa
                 <FiArrowRight size={16} />
               </motion.a>
             </div>
-            {part.name && (
+            {part.name && part.name !== 'JSON_DATA' && (
               <div className="text-center mt-2 text-sm text-gray-500 dark:text-gray-400">
                 {part.name}
               </div>
