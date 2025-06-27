@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.4](https://github.com/bytedance/UI-TARS-desktop/compare/@agent-tars@0.2.3...@agent-tars@0.2.4) (2025-06-27)
+
+### Features
+
+* **agent-tars-cli:** support `--browser.cdpEndpoint` to connect remote browser ([711f8a7](https://github.com/bytedance/UI-TARS-desktop/commit/711f8a71)) [@Charles](https://github.com/Charles)
+
 ## [0.2.3](https://github.com/bytedance/UI-TARS-desktop/compare/@agent-tars@0.2.2...@agent-tars@0.2.3) (2025-06-25)
 
 ### Features
