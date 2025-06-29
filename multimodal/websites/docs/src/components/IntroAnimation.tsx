@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { BiLoaderAlt } from 'react-icons/bi';
-import { FiMonitor } from 'react-icons/fi';
+import { FiMonitor, FiMaximize } from 'react-icons/fi';
 
 type AnimationState = 'first-full' | 'both-showing' | 'second-full';
 
@@ -8,6 +8,7 @@ export function IntroAnimation() {
   const [animationState, setAnimationState] = useState<AnimationState>('first-full');
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(false);
 
   const firstVideoRef = useRef<HTMLVideoElement>(null);
   const secondVideoRef = useRef<HTMLVideoElement>(null);
@@ -32,7 +33,12 @@ export function IntroAnimation() {
 
   // 处理视频加载状态
   const handleVideosReady = useCallback(() => {
-    if (firstVideoRef.current?.readyState >= 3 && secondVideoRef.current?.readyState >= 3) {
+    if (
+      firstVideoRef.current?.readyState &&
+      firstVideoRef.current?.readyState >= 3 &&
+      secondVideoRef.current?.readyState &&
+      secondVideoRef.current?.readyState >= 3
+    ) {
       setLoading(false);
     }
   }, []);
@@ -106,7 +112,7 @@ export function IntroAnimation() {
       }
 
       // 过渡时间
-      const transitionDuration = 2000; // 1秒
+      const transitionDuration = 2000; // 2秒过渡时间
 
       const timer2 = window.setTimeout(() => {
         setAnimationState('second-full');
@@ -148,8 +154,94 @@ export function IntroAnimation() {
     };
   }, [loading, startAnimationLoop]);
 
+  // 添加全屏切换功能 - 独立实现，不依赖于VideoPanel
+  const toggleFullScreen = (videoRef: React.RefObject<HTMLVideoElement | null>) => {
+    if (videoRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        videoRef.current.requestFullscreen();
+      }
+    }
+  };
+
+  // 自定义视频样式类，避免与VideoPanel冲突
+  const getVideoClassName = (isFirstVideo: boolean) => {
+    const baseClass = 'absolute intro-video-element shadow-lg cursor-pointer';
+    const transitionClass = 'intro-transition';
+    const opacityClass = loading ? 'opacity-0' : '';
+
+    // 基于当前状态计算布局类
+    let layoutClass = '';
+
+    if (isFirstVideo) {
+      // 第一个视频的布局类
+      if (isMobile) {
+        layoutClass =
+          animationState === 'first-full'
+            ? 'w-full top-0 left-0 z-20'
+            : animationState === 'both-showing'
+              ? 'w-full top-0 left-0 z-10'
+              : 'w-full top-0 left-0 z-10 opacity-50';
+      } else {
+        layoutClass =
+          animationState === 'first-full'
+            ? 'w-full top-0 left-0 z-20'
+            : animationState === 'both-showing'
+              ? 'w-3/5 top-0 left-0 z-10'
+              : 'w-3/5 top-0 left-0 z-10';
+      }
+    } else {
+      // 第二个视频的布局类
+      if (isMobile) {
+        layoutClass =
+          animationState === 'first-full'
+            ? 'w-full bottom-0 left-0 opacity-0'
+            : animationState === 'both-showing'
+              ? 'w-full bottom-0 left-0 z-20 opacity-100'
+              : 'w-full bottom-0 left-0 z-20 opacity-100';
+      } else {
+        layoutClass =
+          animationState === 'first-full'
+            ? 'w-3/5 bottom-0 right-0 opacity-0'
+            : animationState === 'both-showing'
+              ? 'w-3/5 bottom-0 right-0 z-20 opacity-100'
+              : 'w-full bottom-0 right-0 z-20 opacity-100';
+      }
+    }
+
+    return `${baseClass} ${transitionClass} ${opacityClass} ${layoutClass}`;
+  };
+
   return (
-    <div className="relative w-full" style={{ minHeight: '500px' }}>
+    <div
+      className="relative w-full intro-animation-container"
+      style={{ minHeight: '500px' }}
+      onMouseEnter={() => setControlsVisible(true)}
+      onMouseLeave={() => setControlsVisible(false)}
+    >
+      {/* 添加特定的样式，确保过渡效果的独立性 */}
+      <style jsx>{`
+        .intro-transition {
+          transition: all 1000ms ease-in-out;
+        }
+
+        .intro-video-element {
+          transform-origin: center center;
+        }
+
+        .intro-fullscreen-btn {
+          background-color: rgba(0, 255, 255, 0.7);
+          transition:
+            opacity 300ms,
+            background-color 300ms;
+        }
+
+        .intro-fullscreen-btn:hover {
+          background-color: rgba(0, 255, 255, 0.8);
+        }
+      `}</style>
+
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900/90 dark:bg-gray-900/95 backdrop-blur-sm z-30 rounded-lg border border-gray-700/50 shadow-inner">
           <div className="flex flex-col items-center space-y-3">
@@ -177,43 +269,43 @@ export function IntroAnimation() {
         src="https://lf3-static.bytednsdoc.com/obj/eden-cn/zyha-aulnh/ljhwZthlaukjlkulzlp/docs/agent-cli-launch.mp4"
         muted
         playsInline
-        className={`absolute transition-all duration-1000 ease-in-out ${
-          loading ? 'opacity-0' : ''
-        } ${
-          isMobile
-            ? animationState === 'first-full'
-              ? 'w-full top-0 left-0 z-20'
-              : animationState === 'both-showing'
-                ? 'w-full top-0 left-0 z-10'
-                : 'w-full top-0 left-0 z-10 opacity-50'
-            : animationState === 'first-full'
-              ? 'w-full top-0 left-0 z-20'
-              : animationState === 'both-showing'
-                ? 'w-3/5 top-0 left-0 z-10'
-                : 'w-3/5 top-0 left-0 z-10'
-        }`}
+        className={getVideoClassName(true)}
+        onClick={() => toggleFullScreen(firstVideoRef)}
       />
+
       <video
         ref={secondVideoRef}
         src="https://lf3-static.bytednsdoc.com/obj/eden-cn/zyha-aulnh/ljhwZthlaukjlkulzlp/docs/agent-tars-game-play.mp4"
         muted
         playsInline
-        className={`absolute shadow-lg transition-all duration-1000 ease-in-out ${
-          loading ? 'opacity-0' : ''
-        } ${
-          isMobile
-            ? animationState === 'first-full'
-              ? 'w-full bottom-0 left-0 opacity-0'
-              : animationState === 'both-showing'
-                ? 'w-full bottom-0 left-0 z-20 opacity-100'
-                : 'w-full bottom-0 left-0 z-20 opacity-100'
-            : animationState === 'first-full'
-              ? 'w-3/5 bottom-0 right-0 opacity-0'
-              : animationState === 'both-showing'
-                ? 'w-3/5 bottom-0 right-0 z-20 opacity-100'
-                : 'w-full bottom-0 right-0 z-20 opacity-100'
-        }`}
+        className={getVideoClassName(false)}
+        onClick={() => toggleFullScreen(secondVideoRef)}
       />
+
+      {/* 全屏控制按钮 - 使用独立样式 */}
+      {!loading && controlsVisible && (
+        <>
+          <button
+            className={`absolute top-3 right-3 intro-fullscreen-btn text-black rounded-full p-2 z-30
+              shadow-lg backdrop-blur-sm
+              ${animationState !== 'first-full' ? 'opacity-0' : 'opacity-100'}`}
+            onClick={() => toggleFullScreen(firstVideoRef)}
+            aria-label="Full Screen"
+          >
+            <FiMaximize className="h-4 w-4" />
+          </button>
+
+          <button
+            className={`absolute bottom-3 right-3 intro-fullscreen-btn text-black rounded-full p-2 z-30
+              shadow-lg backdrop-blur-sm
+              ${animationState === 'first-full' ? 'opacity-0' : 'opacity-100'}`}
+            onClick={() => toggleFullScreen(secondVideoRef)}
+            aria-label="Full Screen"
+          >
+            <FiMaximize className="h-4 w-4" />
+          </button>
+        </>
+      )}
     </div>
   );
 }
