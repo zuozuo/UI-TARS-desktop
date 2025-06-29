@@ -1,5 +1,5 @@
-name: "🐞 Agent TARS CLI Bug Report"
-description: "Report an issue with Agent TARS CLI"
+name: "🐞 Agent TARS Bug Report"
+description: "Report an issue with Agent TARS"
 title: "[Bug Report]: "
 type: Bug
 labels: ["Agent TARS", "Bug"]
@@ -19,7 +19,7 @@ body:
       Select the type of issue you are experiencing.
     options:
       - label: Select a issue type 👇
-        required: true
+        required: false
       - label: Agent TARS Web UI (`@agent-tars/web-ui`)
       - label: Agent TARS CLI (`@agent-tars/server`)
       - label: Agent TARS Server (`@agent-tars/server`)

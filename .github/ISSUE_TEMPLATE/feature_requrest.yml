@@ -19,9 +19,7 @@ body:
       description: Select the related project for this feature request.
       options:
         - label: Select a project 👇
-          required: true
-        - label: Agent-TARS
-        - label: Agent Infra (mcp, browser etc.)
+        - label: Agent-TARS (cli, server, agent, tool etc.)
         - label: UI-TARS Desktop
 
   - type: textarea
