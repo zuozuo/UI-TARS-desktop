@@ -84,8 +84,8 @@ export const Navbar: React.FC = () => {
 
             {/* Provider bubble - connected to main bubble */}
             {modelInfo.provider && (
-              <div className="px-2 py-1 -ml-1 rounded-full bg-white dark:bg-gray-800 text-xs text-gray-700 dark:text-purple-400 font-[500]">
-                {modelInfo.provider}
+              <div className="px-2 py-1 -ml-1 rounded-full bg-white dark:bg-gray-800 text-xs font-[500]">
+                <span className="provider-gradient-text">{modelInfo.provider}</span>
               </div>
             )}
           </div>
