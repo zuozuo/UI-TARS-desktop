@@ -15,7 +15,7 @@ interface FileResultRendererProps {
 
 export const FileResultRenderer: React.FC<FileResultRendererProps> = ({ part, onAction }) => {
   const [htmlPreviewMode, setHtmlPreviewMode] = useState<'code' | 'preview'>('code');
-  const [displayMode, setDisplayMode] = useState<DisplayMode>('source');
+  const [displayMode, setDisplayMode] = useState<DisplayMode>('rendered');
   const [copied, setCopied] = useState(false);
 
   // 如果不是文件结果，则不渲染
