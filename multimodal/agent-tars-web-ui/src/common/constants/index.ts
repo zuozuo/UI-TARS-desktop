@@ -49,19 +49,6 @@ export const STORAGE_KEYS = {
 };
 
 /**
- * Tool types
- */
-export const TOOL_TYPES = {
-  SEARCH: 'search',
-  BROWSER: 'browser',
-  COMMAND: 'command',
-  IMAGE: 'image',
-  FILE: 'file',
-  BROWSER_CONTROL: 'browser_vision_control',
-  OTHER: 'other',
-} as const;
-
-/**
  * Message roles
  */
 export const MESSAGE_ROLES = {
@@ -81,3 +68,5 @@ export const CONNECTION_SETTINGS = {
   RECONNECTION_DELAY: 1000,
   RECONNECTION_DELAY_MAX: 5000,
 };
+
+export * from './toolTypes';
