@@ -10,10 +10,69 @@ import log from 'electron-log';
 export const logger = log.scope('main');
 log.initialize();
 
+// Add hook to include line numbers in logs
+log.hooks.push((msg) => {
+  const stackError = new Error();
+  const stack = stackError.stack || '';
+
+  // Split stack trace into lines
+  const lines = stack.split('\n');
+
+  // Find the first line that's not from this logger module or electron-log
+  let callerInfo = '';
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (
+      line &&
+      !line.includes('logger.ts') &&
+      !line.includes('logger.js') &&
+      !line.includes('electron-log') &&
+      !line.includes('node_modules/electron-log')
+    ) {
+      // Try different regex patterns for stack trace formats
+      const patterns = [
+        // Chrome/V8 format: at functionName (file:line:column)
+        /at\s+(?:.*?\s+)?\((.+):(\d+):(\d+)\)/,
+        // Chrome/V8 format without function: at file:line:column
+        /at\s+(.+):(\d+):(\d+)/,
+        // Firefox format: functionName@file:line:column
+        /(.+):(\d+):(\d+)$/,
+      ];
+
+      for (const pattern of patterns) {
+        const match = line.match(pattern);
+        if (match) {
+          const [, filePath, lineNum, colNum] = match;
+          const fileName = path.basename(filePath);
+          callerInfo = `[${fileName}:${lineNum}:${colNum}]`;
+          break;
+        }
+      }
+
+      if (callerInfo) break;
+    }
+  }
+
+  // Add caller info to message variables
+  if (callerInfo) {
+    if (!msg.variables) {
+      msg.variables = {};
+    }
+    msg.variables.caller = callerInfo;
+  }
+
+  return msg;
+});
+
+// Configure console transport
+log.transports.console.format = '{h}:{i}:{s}.{ms} ({scope}) › {text} {caller}';
+
+// Configure file transport
 log.transports.file.level =
   process.env.NODE_ENV === 'development' ? 'debug' : 'info';
 log.transports.file.maxSize = 5 * 1024 * 1024; // 5MB
-log.transports.file.format = '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}] {text}';
+log.transports.file.format =
+  '[{y}-{m}-{d} {h}:{i}:{s}.{ms}] [{level}]{scope} {text} {caller}';
 log.transports.file.archiveLogFn = (file) => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const newPath = `${file.path}.${timestamp}`;
