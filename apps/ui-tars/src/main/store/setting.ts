@@ -27,6 +27,7 @@ export const DEFAULT_SETTING: LocalStore = {
   maxLoopCount: 100,
   loopIntervalInMs: 1000,
   searchEngineForBrowser: SearchEngineForSettings.GOOGLE,
+  enablePersistentProfile: false,
   operator: Operator.LocalComputer,
   reportStorageBaseUrl: '',
   utioBaseUrl: '',

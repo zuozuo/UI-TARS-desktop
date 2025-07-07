@@ -10,6 +10,8 @@
     "commit": "oco",
     "bootstrap": "pnpm i",
     "dev:ui-tars": "turbo run ui-tars-desktop#dev",
+    "dev:packages": "turbo run build --filter='./packages/**' -- --watch",
+    "dev:all": "turbo run build --filter='./packages/**' dev --filter='ui-tars-desktop' --concurrency=30",
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "test": "vitest",
