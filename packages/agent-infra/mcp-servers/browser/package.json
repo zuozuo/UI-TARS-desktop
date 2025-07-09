@@ -1,6 +1,6 @@
 {
   "name": "@agent-infra/mcp-server-browser",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "MCP server for browser use access",
   "license": "MIT",
   "homepage": "https://github.com/bytedance/UI-TARS-desktop",
@@ -27,7 +27,7 @@
     "dev:vision": "npx -y @modelcontextprotocol/inspector tsx src/index.ts --vision",
     "prepare": "npm run build",
     "prepublishOnly": "tsx scripts/update-readme.ts",
-    "test": "vitest run",
+    "test": "vitest run --config=./vitest.config.mts",
     "test:bench": "vitest bench",
     "watch": "rslib build --watch"
   },
