@@ -2,11 +2,17 @@
  * Copyright (c) 2025 Bytedance, Inc. and its affiliates.
  * SPDX-License-Identifier: Apache-2.0
  */
-import * as puppeteer from 'puppeteer-core';
+import { addExtra } from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import { BrowserFinder } from './browser-finder';
 import { BaseBrowser } from './base-browser';
 
 import type { BrowserType, LaunchOptions } from './types';
+import type { LaunchOptions as PuppeteerLaunchOptions } from 'puppeteer-core';
+
+// Create puppeteer-extra instance with stealth plugin
+const puppeteerExtra = addExtra(require('puppeteer-core'));
+puppeteerExtra.use(StealthPlugin());
 
 /**
  * LocalBrowser class for controlling locally installed browsers
@@ -28,7 +34,7 @@ export class LocalBrowser extends BaseBrowser {
     const viewportWidth = options?.defaultViewport?.width ?? 1280;
     const viewportHeight = options?.defaultViewport?.height ?? 800;
 
-    const puppeteerLaunchOptions: puppeteer.LaunchOptions = {
+    const puppeteerLaunchOptions: PuppeteerLaunchOptions = {
       browser: type,
       executablePath: path,
       dumpio: options?.dumpio ?? false,
@@ -44,10 +50,10 @@ export class LocalBrowser extends BaseBrowser {
         userDataDir: options.userDataDir,
       }),
       args: [
-        '--no-sandbox',
+        // '--no-sandbox',
         '--mute-audio',
         '--disable-gpu',
-        '--disable-http2',
+        // '--disable-http2',
         '--disable-blink-features=AutomationControlled',
         '--disable-infobars',
         '--disable-background-timer-throttling',
@@ -57,9 +63,9 @@ export class LocalBrowser extends BaseBrowser {
         '--disable-window-activation',
         '--disable-focus-on-load',
         '--no-default-browser-check', // disable default browser check
-        '--disable-web-security', // disable CORS
-        '--disable-features=IsolateOrigins,site-per-process',
-        '--disable-site-isolation-trials',
+        // '--disable-web-security', // disable CORS
+        // '--disable-features=IsolateOrigins,site-per-process',
+        // '--disable-site-isolation-trials',
         `--window-size=${viewportWidth},${viewportHeight + 90}`,
         options?.proxy ? `--proxy-server=${options.proxy}` : '',
         options?.proxyBypassList
@@ -95,7 +101,7 @@ export class LocalBrowser extends BaseBrowser {
     this.logger.info('Launch options:', puppeteerLaunchOptions);
 
     try {
-      this.browser = await puppeteer.launch(puppeteerLaunchOptions);
+      this.browser = await puppeteerExtra.launch(puppeteerLaunchOptions as any);
       await this.setupPageListener();
       this.logger.success('Browser launched successfully');
     } catch (error) {
