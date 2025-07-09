@@ -1,0 +1,25 @@
+model:
+  provider: volcengine
+  id: doubao-1-5-thinking-vision-pro-250428
+  apiKey: your-api-key-here
+
+browser:
+  type: local
+  headless: false
+  control: hybrid
+  stealth: true  # 启用 Puppeteer Stealth 插件
+  # stealth: false  # 禁用 Puppeteer Stealth 插件
+  cdpEndpoint: null
+
+workspace:
+  workingDirectory: ./workspace
+
+planner:
+  enable: false
+  maxSteps: 3
+
+logLevel: info
+stream: true
+
+thinking:
+  type: enabled

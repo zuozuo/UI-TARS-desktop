@@ -33,6 +33,7 @@ import baiduIcon from '@resources/icons/baidu-color.svg?url';
 const formSchema = z.object({
   searchEngineForBrowser: z.nativeEnum(SearchEngineForSettings),
   enablePersistentProfile: z.boolean().optional(),
+  enableStealth: z.boolean().optional(),
 });
 
 export function LocalBrowserSettings() {
@@ -43,19 +44,23 @@ export function LocalBrowserSettings() {
     defaultValues: {
       searchEngineForBrowser: undefined,
       enablePersistentProfile: false,
+      enableStealth: true,
     },
   });
 
-  const [newSearchEngine, newEnablePersistentProfile] = form.watch([
-    'searchEngineForBrowser',
-    'enablePersistentProfile',
-  ]);
+  const [newSearchEngine, newEnablePersistentProfile, newEnableStealth] =
+    form.watch([
+      'searchEngineForBrowser',
+      'enablePersistentProfile',
+      'enableStealth',
+    ]);
 
   useEffect(() => {
     if (Object.keys(settings).length) {
       form.reset({
         searchEngineForBrowser: settings.searchEngineForBrowser,
         enablePersistentProfile: settings.enablePersistentProfile ?? false,
+        enableStealth: settings.enableStealth ?? true,
       });
     }
   }, [settings, form]);
@@ -71,12 +76,14 @@ export function LocalBrowserSettings() {
     const validAndSave = async () => {
       if (
         newSearchEngine !== settings.searchEngineForBrowser ||
-        newEnablePersistentProfile !== settings.enablePersistentProfile
+        newEnablePersistentProfile !== settings.enablePersistentProfile ||
+        newEnableStealth !== settings.enableStealth
       ) {
         updateSetting({
           ...settings,
           searchEngineForBrowser: newSearchEngine,
           enablePersistentProfile: newEnablePersistentProfile,
+          enableStealth: newEnableStealth,
         });
       }
     };
@@ -85,6 +92,7 @@ export function LocalBrowserSettings() {
   }, [
     newSearchEngine,
     newEnablePersistentProfile,
+    newEnableStealth,
     settings,
     updateSetting,
     form,
@@ -151,6 +159,27 @@ export function LocalBrowserSettings() {
                   <p className="text-sm text-muted-foreground">
                     Save browser data (cookies, localStorage, login states)
                     between sessions
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="enableStealth"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 mt-4">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Enable stealth mode</FormLabel>
+                  <p className="text-sm text-muted-foreground">
+                    Use Puppeteer Stealth plugin to bypass bot detection
+                    (recommended for most websites)
                   </p>
                 </div>
               </FormItem>

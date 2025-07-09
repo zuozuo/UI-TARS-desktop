@@ -50,6 +50,13 @@ export interface AgentTARSBrowserOptions {
    * CDP endpoint to connect to, for example "http://127.0.0.1:9222/json/version
    */
   cdpEndpoint?: string;
+
+  /**
+   * Enable Puppeteer Stealth plugin to make the browser harder to detect as automated
+   *
+   * @defaultValue `true`
+   */
+  stealth?: boolean;
 }
 
 /**

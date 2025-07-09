@@ -781,6 +781,7 @@ export class DefaultBrowserOperator extends BrowserOperator {
     isCallUser = false,
     searchEngine = 'google' as SearchEngine,
     enablePersistentProfile = false,
+    enableStealth = true,
   ): Promise<DefaultBrowserOperator> {
     if (!this.logger) {
       this.logger = new ConsoleLogger('[DefaultBrowserOperator]');
@@ -789,6 +790,8 @@ export class DefaultBrowserOperator extends BrowserOperator {
     this.logger.info(
       'getInstance called with enablePersistentProfile:',
       enablePersistentProfile,
+      'enableStealth:',
+      enableStealth,
     );
 
     if (this.browser) {
@@ -807,12 +810,15 @@ export class DefaultBrowserOperator extends BrowserOperator {
       const launchOptions: any = {
         executablePath: this.browserPath,
         browserType: this.browserType,
+        stealth: enableStealth,
       };
 
       // Add persistent profile if enabled
       this.logger.info(
-        'Checking persistent profile setting:',
+        'Launch options - persistent profile:',
         enablePersistentProfile,
+        'stealth:',
+        enableStealth,
       );
       if (enablePersistentProfile) {
         this.logger.info(

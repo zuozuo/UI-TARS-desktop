@@ -87,6 +87,11 @@ export function addCommonOptions(command: Command): Command {
         '--browser.cdpEndpoint <endpoint>',
         'CDP endpoint to connect to, for example "http://127.0.0.1:9222/json/version',
       )
+      .option(
+        '--browser.stealth',
+        'Enable Puppeteer Stealth plugin to avoid bot detection (enabled by default)',
+      )
+      .option('--no-browser.stealth', 'Disable Puppeteer Stealth plugin')
 
       // Planner configuration
       .option('--planner <planner>', 'Planner config')
