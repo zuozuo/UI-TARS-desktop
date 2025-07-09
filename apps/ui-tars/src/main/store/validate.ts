@@ -28,6 +28,7 @@ export const PresetSchema = z.object({
   maxLoopCount: z.number().min(25).max(200).optional(),
   loopIntervalInMs: z.number().min(0).max(3000).optional(),
   searchEngineForBrowser: z.nativeEnum(SearchEngineForSettings).optional(),
+  enablePersistentProfile: z.boolean().optional(),
 
   // Report Settings
   reportStorageBaseUrl: z.string().url().optional(),

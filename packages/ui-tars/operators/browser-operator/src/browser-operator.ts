@@ -21,6 +21,9 @@ import type {
 import { BrowserOperatorOptions, SearchEngine } from './types';
 import { UIHelper } from './ui-helper';
 import { BrowserFinder } from '@agent-infra/browser';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 
 import { KEY_MAPPINGS } from './key-map';
 import { shortcuts } from './shortcuts';
@@ -717,6 +720,33 @@ export class DefaultBrowserOperator extends BrowserOperator {
   }
 
   /**
+   * Get the application data directory based on the platform
+   * @returns {string} The application data directory path
+   */
+  private static getAppDataDir(): string {
+    const platform = process.platform;
+
+    switch (platform) {
+      case 'win32':
+        // Windows: %APPDATA%
+        return (
+          process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming')
+        );
+      case 'darwin':
+        // macOS: ~/Library/Application Support
+        return path.join(os.homedir(), 'Library', 'Application Support');
+      case 'linux':
+        // Linux: ~/.config
+        return (
+          process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config')
+        );
+      default:
+        // Fallback to home directory
+        return os.homedir();
+    }
+  }
+
+  /**
    * Check whether the local environment has a browser available
    * @returns {boolean}
    */
@@ -750,25 +780,61 @@ export class DefaultBrowserOperator extends BrowserOperator {
     showWaterFlow = false,
     isCallUser = false,
     searchEngine = 'google' as SearchEngine,
+    enablePersistentProfile = false,
   ): Promise<DefaultBrowserOperator> {
     if (!this.logger) {
       this.logger = new ConsoleLogger('[DefaultBrowserOperator]');
     }
 
+    this.logger.info(
+      'getInstance called with enablePersistentProfile:',
+      enablePersistentProfile,
+    );
+
     if (this.browser) {
       const isAlive = await this.browser.isBrowserAlive();
+      this.logger.info('Browser exists, isAlive:', isAlive);
       if (!isAlive) {
         this.browser = null;
         this.instance = null;
       }
     }
 
+    this.logger.info('Creating new browser instance:', !this.browser);
     if (!this.browser) {
       this.browser = new LocalBrowser({ logger: this.logger });
-      await this.browser.launch({
+
+      const launchOptions: any = {
         executablePath: this.browserPath,
         browserType: this.browserType,
-      });
+      };
+
+      // Add persistent profile if enabled
+      this.logger.info(
+        'Checking persistent profile setting:',
+        enablePersistentProfile,
+      );
+      if (enablePersistentProfile) {
+        this.logger.info(
+          'Persistent profile is enabled, setting up userDataDir',
+        );
+        // Get user data directory based on platform
+        const appDataDir = this.getAppDataDir();
+        const userDataDir = path.join(
+          appDataDir,
+          'ui-tars-desktop',
+          'browser-profiles',
+          'local-browser',
+        );
+
+        // Ensure directory exists
+        await fs.promises.mkdir(userDataDir, { recursive: true });
+        this.logger.info('Using persistent profile at:', userDataDir);
+
+        launchOptions.userDataDir = userDataDir;
+      }
+
+      await this.browser.launch(launchOptions);
     }
 
     if (!this.instance) {

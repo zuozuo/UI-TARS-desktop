@@ -149,6 +149,7 @@ export const runAgent = async (
         false,
         getState().status === StatusEnum.CALL_USER,
         getLocalBrowserSearchEngine(settings.searchEngineForBrowser),
+        settings.enablePersistentProfile,
       );
       operatorType = 'browser';
       break;
