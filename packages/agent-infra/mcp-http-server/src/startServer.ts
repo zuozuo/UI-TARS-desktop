@@ -18,8 +18,20 @@ import type { AddressInfo } from 'node:net';
 
 export { BaseLogger };
 
+export interface RoutesConfig {
+  /** Route prefix for all endpoints. Default is '/' */
+  prefix?: string;
+  /** MCP endpoint path. Default is '/mcp', really means '/${prefix}/mcp' */
+  mcp?: string;
+  /** Message endpoint path for SSE. Default is '/message', really means '/${prefix}/message' */
+  message?: string;
+  /** SSE endpoint path. Default is '/sse', really means '/${prefix}/sse' */
+  sse?: string;
+}
+
 export interface McpServerEndpoint {
   url: string;
+  sseUrl: string;
   port: number;
   close: () => void;
 }
@@ -39,6 +51,8 @@ interface StartSseAndStreamableHttpMcpServerParams {
   stateless?: boolean;
   /** Custom middlewares */
   middlewares?: MiddlewareFunction[];
+  /** Routes configuration */
+  routes?: RoutesConfig;
   logger?: Logger;
   createMcpServer: (req: RequestContext) => Promise<McpServer | Server>;
 }
@@ -52,8 +66,29 @@ export async function startSseAndStreamableHttpMcpServer(
     createMcpServer,
     stateless = true,
     middlewares,
+    routes = {},
     logger = new ConsoleLogger(),
   } = params;
+
+  // default routes config
+  const routesConfig = {
+    prefix: routes.prefix || '/',
+    mcp: routes.mcp || '/mcp',
+    message: routes.message || '/message',
+    sse: routes.sse || '/sse',
+  };
+
+  // helper function to build full path
+  const buildPath = (routePath: string) => {
+    const prefix = routesConfig.prefix.endsWith('/')
+      ? routesConfig.prefix.slice(0, -1)
+      : routesConfig.prefix;
+    const normalizedPath = routePath.startsWith('/')
+      ? routePath
+      : `/${routePath}`;
+    return prefix === '/' ? normalizedPath : `${prefix}${normalizedPath}`;
+  };
+
   const transports = {
     streamable: new Map<string, StreamableHTTPServerTransport>(),
     sse: new Map<string, SSEServerTransport>(),
@@ -81,13 +116,17 @@ export async function startSseAndStreamableHttpMcpServer(
     middlewares.forEach((middleware) => app.use(middleware));
   }
 
-  app.get('/sse', async (req, res) => {
+  // SSE endpoint
+  app.get(buildPath(routesConfig.sse), async (req, res) => {
     const mcpServer = await createMcpServer({
       headers: req.headers,
     });
     logger.info(`New SSE connection from ${req.ip}`);
 
-    const sseTransport = new SSEServerTransport('/message', res);
+    const sseTransport = new SSEServerTransport(
+      buildPath(routesConfig.message),
+      res,
+    );
 
     transports.sse.set(sseTransport.sessionId, sseTransport);
 
@@ -98,7 +137,8 @@ export async function startSseAndStreamableHttpMcpServer(
     await mcpServer.connect(sseTransport);
   });
 
-  app.post('/message', async (req, res) => {
+  // Message endpoint for SSE
+  app.post(buildPath(routesConfig.message), async (req, res) => {
     const sessionId = req.query.sessionId as string;
 
     if (!sessionId) {
@@ -115,12 +155,12 @@ export async function startSseAndStreamableHttpMcpServer(
     }
   });
 
-  app.post('/mcp', async (req: Request, res: Response) => {
+  // MCP HTTP endpoint
+  app.post(buildPath(routesConfig.mcp), async (req: Request, res: Response) => {
     const mcpServer = await createMcpServer({
       headers: req.headers,
     });
 
-    const sessionId = req.headers['mcp-session-id'] as string | undefined;
     let transport: StreamableHTTPServerTransport;
 
     if (stateless) {
@@ -128,6 +168,10 @@ export async function startSseAndStreamableHttpMcpServer(
         sessionIdGenerator: undefined, // set to undefined for stateless servers
       });
     } else {
+      const sessionId = Array.isArray(req.headers['mcp-session-id'])
+        ? req.headers['mcp-session-id'][0]
+        : req.headers['mcp-session-id'];
+
       if (sessionId && transports.streamable.has(sessionId)) {
         // Reuse existing transport
         transport = transports.streamable.get(sessionId)!;
@@ -181,7 +225,8 @@ export async function startSseAndStreamableHttpMcpServer(
     }
   });
 
-  app.get('/mcp', async (req: Request, res: Response) => {
+  // Handle GET requests to MCP endpoint
+  app.get(buildPath(routesConfig.mcp), async (req: Request, res: Response) => {
     logger.info('Received GET MCP request');
     res.writeHead(405).end(
       JSON.stringify({
@@ -195,19 +240,23 @@ export async function startSseAndStreamableHttpMcpServer(
     );
   });
 
-  app.delete('/mcp', async (req: Request, res: Response) => {
-    logger.info('Received DELETE MCP request');
-    res.writeHead(405).end(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        error: {
-          code: ErrorCode.ConnectionClosed,
-          message: 'Method not allowed.',
-        },
-        id: null,
-      }),
-    );
-  });
+  // Handle DELETE requests to MCP endpoint
+  app.delete(
+    buildPath(routesConfig.mcp),
+    async (req: Request, res: Response) => {
+      logger.info('Received DELETE MCP request');
+      res.writeHead(405).end(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          error: {
+            code: ErrorCode.ConnectionClosed,
+            message: 'Method not allowed.',
+          },
+          id: null,
+        }),
+      );
+    },
+  );
 
   const HOST = host || '::';
   const PORT = Number(port || process.env.PORT || 8080);
@@ -226,14 +275,13 @@ export async function startSseAndStreamableHttpMcpServer(
           : address?.address) || HOST;
 
       const endpoint: McpServerEndpoint = {
-        url: `http://${actualHost}:${PORT}/mcp`,
+        url: `http://${actualHost}:${PORT}${buildPath(routesConfig.mcp)}`,
+        sseUrl: `http://${actualHost}:${PORT}${buildPath(routesConfig.sse)}`,
         port: PORT,
         close: () => appServer.close(),
       };
       logger.info(`Streamable HTTP MCP Server listening at ${endpoint.url}`);
-      logger.info(
-        `SSE MCP Server listening at http://${actualHost}:${PORT}/sse`,
-      );
+      logger.info(`SSE MCP Server listening at ${endpoint.sseUrl}`);
       resolve(endpoint);
     });
 
