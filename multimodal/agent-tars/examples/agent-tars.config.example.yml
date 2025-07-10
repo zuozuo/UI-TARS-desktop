@@ -10,6 +10,7 @@ browser:
   stealth: true  # 启用 Puppeteer Stealth 插件
   # stealth: false  # 禁用 Puppeteer Stealth 插件
   cdpEndpoint: null
+  # userDataDir: /path/to/custom/profile  # 自定义浏览器配置文件路径（可选）
 
 workspace:
   workingDirectory: ./workspace

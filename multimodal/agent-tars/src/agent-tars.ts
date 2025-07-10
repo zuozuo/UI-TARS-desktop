@@ -501,6 +501,7 @@ Current Working Directory: ${workingDirectory}
             headless: this.tarsOptions.browser?.headless,
             cdpEndpoint: this.tarsOptions.browser?.cdpEndpoint,
             stealth: this.tarsOptions.browser?.stealth,
+            userDataDir: this.tarsOptions.browser?.userDataDir,
           });
         }
       } else {

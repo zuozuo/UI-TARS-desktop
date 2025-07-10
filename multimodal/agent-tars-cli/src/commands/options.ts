@@ -92,6 +92,10 @@ export function addCommonOptions(command: Command): Command {
         'Enable Puppeteer Stealth plugin to avoid bot detection (enabled by default)',
       )
       .option('--no-browser.stealth', 'Disable Puppeteer Stealth plugin')
+      .option(
+        '--browser.userDataDir <path>',
+        'Browser user data directory path for persistent profiles (defaults to OS-specific location)',
+      )
 
       // Planner configuration
       .option('--planner <planner>', 'Planner config')

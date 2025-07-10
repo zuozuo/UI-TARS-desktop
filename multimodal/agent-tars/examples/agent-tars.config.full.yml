@@ -46,6 +46,12 @@ browser:
   stealth: true
   # CDP 端点 (用于连接远程浏览器)
   # cdpEndpoint: http://127.0.0.1:9222/json/version
+  # 浏览器用户数据目录 (用于持久化配置文件)
+  # 默认路径:
+  # - Windows: %APPDATA%/agent-tars-cli/browser-profiles/local-browser/
+  # - macOS: ~/Library/Application Support/agent-tars-cli/browser-profiles/local-browser/
+  # - Linux: ~/.config/agent-tars-cli/browser-profiles/local-browser/
+  # userDataDir: /custom/path/to/browser/profile
 
 # ===== 搜索配置 =====
 search:

@@ -57,6 +57,18 @@ export interface AgentTARSBrowserOptions {
    * @defaultValue `true`
    */
   stealth?: boolean;
+
+  /**
+   * Browser user data directory path for persistent profiles
+   *
+   * @defaultValue OS-specific default paths:
+   * - Windows: %APPDATA%/{appName}/browser-profiles/local-browser/
+   * - macOS: ~/Library/Application Support/{appName}/browser-profiles/local-browser/
+   * - Linux: ~/.config/{appName}/browser-profiles/local-browser/
+   *
+   * Where {appName} is 'agent-tars-cli' for CLI usage or 'ui-tars-desktop' for desktop app
+   */
+  userDataDir?: string;
 }
 
 /**

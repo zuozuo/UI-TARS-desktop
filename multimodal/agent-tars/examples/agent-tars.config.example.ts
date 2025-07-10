@@ -14,6 +14,7 @@ export default defineConfig({
     control: 'hybrid',
     stealth: true, // 启用 Puppeteer Stealth 插件（默认值）
     // stealth: false,  // 禁用 Puppeteer Stealth 插件
+    // userDataDir: '/path/to/custom/profile', // 自定义浏览器配置文件路径（可选）
   },
 
   workspace: {

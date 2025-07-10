@@ -27,6 +27,7 @@ import * as fs from 'fs';
 
 import { KEY_MAPPINGS } from './key-map';
 import { shortcuts } from './shortcuts';
+import { getDefaultBrowserUserDataDir } from '@agent-infra/shared';
 
 /**
  * BrowserOperator class that extends the base Operator
@@ -720,33 +721,6 @@ export class DefaultBrowserOperator extends BrowserOperator {
   }
 
   /**
-   * Get the application data directory based on the platform
-   * @returns {string} The application data directory path
-   */
-  private static getAppDataDir(): string {
-    const platform = process.platform;
-
-    switch (platform) {
-      case 'win32':
-        // Windows: %APPDATA%
-        return (
-          process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming')
-        );
-      case 'darwin':
-        // macOS: ~/Library/Application Support
-        return path.join(os.homedir(), 'Library', 'Application Support');
-      case 'linux':
-        // Linux: ~/.config
-        return (
-          process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config')
-        );
-      default:
-        // Fallback to home directory
-        return os.homedir();
-    }
-  }
-
-  /**
    * Check whether the local environment has a browser available
    * @returns {boolean}
    */
@@ -824,14 +798,8 @@ export class DefaultBrowserOperator extends BrowserOperator {
         this.logger.info(
           'Persistent profile is enabled, setting up userDataDir',
         );
-        // Get user data directory based on platform
-        const appDataDir = this.getAppDataDir();
-        const userDataDir = path.join(
-          appDataDir,
-          'ui-tars-desktop',
-          'browser-profiles',
-          'local-browser',
-        );
+        // Get user data directory using shared function
+        const userDataDir = getDefaultBrowserUserDataDir('ui-tars-desktop');
 
         // Ensure directory exists
         await fs.promises.mkdir(userDataDir, { recursive: true });
